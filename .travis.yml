@@ -38,8 +38,11 @@ script:
   
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
-  - curl -s https://report.ci/upload.py | python - --include='*.xml' --framework=catch
+  - bash <(curl -s https://codecov.io/bash) -f graph_coverage_xml.xml -t 23fdf1fc-d0ee-4005-94b0-14f135f261f9
+  - curl -s https://report.ci/upload.py | python - --include='catch_log.xml' -t ZSv4xLQlPismY8ISXkR2T8ModxglvzzALnOzTwH6GvcXtMPk0wGvxAuHD1iwgxnKyRzD/nDSBQ==fNSn0v8vaDnwaL5K8rK9wQ==
+
+  
+
 
 
 
