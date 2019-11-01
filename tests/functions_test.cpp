@@ -1,5 +1,5 @@
 #include <ctgraph.hpp>
-#include <catch2/catch.hpp>
+#include "./catch.hpp"
 
 enum class NodeTypes
 {

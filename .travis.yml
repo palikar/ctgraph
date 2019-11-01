@@ -17,6 +17,7 @@ matrix:
             - g++-9
             - lcov
             - gcovr
+            - catch
 
   
 script:

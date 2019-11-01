@@ -166,13 +166,12 @@ endif()
 option(BUILD_TESTS "Build the tests for the project" TRUE)
 if(BUILD_TESTS OR ONLY_COVERAGE)
     
-    find_package(Catch2 REQUIRED)
     enable_testing()
     include(CTest)
     include(Catch)
     add_executable(graph_tests ./tests/graph_test.cpp ./tests/main_test.cpp ./tests/functions_test.cpp)
     target_link_libraries(graph_tests
-        PRIVATE project_options project_warnings Catch2::Catch2
+        PRIVATE project_options project_warnings # Catch2::Catch2
         PUBLIC ctgraph_lib)
     catch_discover_tests(graph_tests)
 
