@@ -6,6 +6,11 @@ project(ctgraph LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(CMAKE_CXX_STANDARD 17)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
+if (CMAKE_BINARY_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    message(FATAL_ERROR "Building in-source is not supported! Create a build dir and remove ${CMAKE_SOURCE_DIR}/CMakeCache.txt")
+endif()
 
 find_program(CCACHE ccache)
 if(CCACHE)
@@ -134,24 +139,59 @@ target_include_directories(ctgraph_lib INTERFACE
     ./include)
 
 
-# The testign example
-add_executable(ctgraph_example ./src/example.cpp)
-target_link_libraries(ctgraph_example
-    PRIVATE project_options project_warnings
-    PUBLIC ctgraph_lib)
+if(NOT ONLY_COVERAGE)
+
+    # The testing example
+    add_executable(ctgraph_example ./src/example.cpp)
+    target_link_libraries(ctgraph_example
+        PRIVATE project_options project_warnings
+        PUBLIC ctgraph_lib)
+
+    # The single header include
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/ctgraph)
+    configure_file(${PROJECT_SOURCE_DIR}/third_party/config.json.in ${PROJECT_SOURCE_DIR}/third_party/config.json)
+    add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ctgraph/ctgraph.hpp
+        COMMAND python ${PROJECT_SOURCE_DIR}/third_party/amalgamate.py -c ${PROJECT_SOURCE_DIR}/third_party/config.json -s ${PROJECT_SOURCE_DIR}
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/ctgraph/ctgraph.hpp ${CMAKE_CURRENT_BINARY_DIR}/ctgraph.hpp
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/ctgraph/
+        DEPENDS ${PROJECT_SOURCE_DIR}/include/*.hpp ${PROJECT_SOURCE_DIR}/include/ctgraph/*.hpp)
+    add_custom_target(ctgraph_header ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ctgraph/ctgraph.hpp)
+    add_dependencies(ctgraph_lib ctgraph_header)
+    
+endif()
 
 
-# The single header include
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/ctgraph)
-configure_file(${PROJECT_SOURCE_DIR}/third_party/config.json.in ${PROJECT_SOURCE_DIR}/third_party/config.json)
-add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ctgraph/ctgraph.hpp
-    COMMAND python ${PROJECT_SOURCE_DIR}/third_party/amalgamate.py -c ${PROJECT_SOURCE_DIR}/third_party/config.json -s ${PROJECT_SOURCE_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/ctgraph/ctgraph.hpp ${CMAKE_CURRENT_BINARY_DIR}/ctgraph.hpp
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/ctgraph/
-    DEPENDS ${PROJECT_SOURCE_DIR}/include/*.hpp ${PROJECT_SOURCE_DIR}/include/ctgraph/*.hpp)
-add_custom_target(ctgraph_header ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ctgraph/ctgraph.hpp)
-add_dependencies(ctgraph_lib ctgraph_header)
+
+option(BUILD_TESTS "Build the tests for the project" TRUE)
+if(BUILD_TESTS OR ONLY_COVERAGE)
+    
+    find_package(Catch2 REQUIRED)
+    enable_testing()
+    include(CTest)
+    include(Catch)
+    add_executable(graph_tests ./tests/graph_test.cpp ./tests/main_test.cpp ./tests/functions_test.cpp)
+    target_link_libraries(graph_tests
+        PRIVATE project_options project_warnings Catch2::Catch2
+        PUBLIC ctgraph_lib)
+    catch_discover_tests(graph_tests)
+
+    if(ONLY_COVERAGE OR ENABLE_COVERAGE)
+        
+        include(CodeCoverage)
+        setup_target_for_coverage_gcovr_html(
+            NAME graph_coverage_html
+            EXECUTABLE ctest -j2
+            DEPENDENCIES graph_tests)
+
+        setup_target_for_coverage_gcovr_xml(
+            NAME graph_coverage_xml
+            EXECUTABLE ctest -j2
+            DEPENDENCIES graph_tests)
+    endif()
+
+endif()
+
 
 
 install(TARGETS ctgraph_lib

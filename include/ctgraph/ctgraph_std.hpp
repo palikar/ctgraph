@@ -1,11 +1,11 @@
 #pragma once
 
+#include <algorithm>
+#include <array>
 #include <iostream>
 #include <string>
-#include <vector>
-#include <unordered_map>
 #include <tuple>
 #include <type_traits>
-#include <array>
-#include <algorithm>
+#include <unordered_map>
 #include <utility>
+#include <vector>

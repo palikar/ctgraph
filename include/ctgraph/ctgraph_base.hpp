@@ -4,7 +4,7 @@
 #include "./ctgraph_std.hpp"
 
 
-namespace cgraph
+namespace ctgraph
 {
 
 namespace detail
@@ -15,18 +15,12 @@ static constexpr size_t count_(const EnumType val, Nodes &&nodes)
 {
 
     auto& node = std::get<Index>(std::forward<Nodes>(nodes));
-    if (node.m_name == val)
-    {
+    if (node.m_name == val) {
         return node.m_tos.size();
-    }
-    else
-    {
-        if constexpr (Index + 1 < Count)
-        {
+    } else {
+        if constexpr (Index + 1 < Count) {
             return count_<Index + 1, Count>(val, std::forward<Nodes>(nodes));
-        }
-        else
-        {
+        } else{
             return 0;
         }
     }
@@ -38,23 +32,15 @@ constexpr static EnumType get_node_impl(const EnumType val, Nodes &&nodes)
     auto& node = std::get<Index>(std::forward<Nodes>(nodes));
     if (node.m_name == val)
     {
-        if (N < node.m_tos.size())
-        {
+        if (N < node.m_tos.size()){
             return (node.m_tos)[N];
-        }
-        else
-        {
+        } else{
             return val;
         }
-    }
-    else
-    {
-        if constexpr (Index + 1 < Count)
-        {
+    } else {
+        if constexpr (Index + 1 < Count){
             return get_node_impl<N, Index + 1, Count>(val, std::forward<Nodes>(nodes));
-        }
-        else
-        {
+        } else{
             return val;
         }
     }
@@ -65,14 +51,10 @@ template<size_t Index, size_t Count, typename EnumType, typename Nodes, typename
 static constexpr void for_each_(const EnumType val, Nodes &&nodes, Callable  &&call)
 {
     auto& node = std::get<Index>(std::forward<Nodes>(nodes));
-    if (node.m_name == val)
-    {
+    if (node.m_name == val) {
         std::for_each(std::begin(node.m_tos), std::end(node.m_tos), std::forward<Callable>(call));
-    }
-    else
-    {
-        if constexpr (Index + 1 < Count)
-        {
+    } else {
+        if constexpr (Index + 1 < Count){
             for_each_<Index + 1, Count>(val, std::forward<Nodes>(nodes), std::forward<Callable>(call));
         }
     }
@@ -88,12 +70,9 @@ static constexpr auto apply_(const EnumType val, Nodes &&nodes, Callable  &&call
     }
     else
     {
-        if constexpr (Index + 1 < Count)
-        {
+        if constexpr (Index + 1 < Count){
             return apply_<Index + 1, Count>(val, std::forward<Nodes>(nodes), std::forward<Callable>(call));
-        }
-        else
-        {
+        } else{
             const std::array<EnumType, 1> arr{static_cast<EnumType>(1)};
             return call(arr);
         }
@@ -103,19 +82,13 @@ static constexpr auto apply_(const EnumType val, Nodes &&nodes, Callable  &&call
 template<size_t Index, size_t Count, typename EnumType, typename Nodes>
 static constexpr auto contains_(const EnumType val, Nodes &&nodes)
 {
-    auto& node = std::get<Index>(std::forward<Nodes>(nodes));
-    if (node.m_name == val)
-    {
+    const auto& node = std::get<Index>(std::forward<Nodes>(nodes));
+    if (node.m_name == val) {
         return true;
-    }
-    else
-    {
-        if constexpr (Index + 1 < Count)
-        {
+    } else {
+        if constexpr (Index + 1 < Count){
             return contains_<Index + 1, Count>(val, std::forward<Nodes>(nodes));
-        }
-        else
-        {
+        } else{
             return false;
         }
     }
@@ -128,16 +101,14 @@ static constexpr auto adjacent_(const EnumType val, const EnumType to, Nodes &&n
     auto& node = std::get<Index>(std::forward<Nodes>(nodes));
     if (node.m_name == val)
     {
-        return std::find(std::begin(node.m_tos),std::end(node.m_tos), to) != std::end(node.m_tos); 
+        return std::find(std::begin(node.m_tos),std::end(node.m_tos), to) != std::end(node.m_tos);
     }
     else
     {
-        if constexpr (Index + 1 < Count)
-        {
+        if constexpr (Index + 1 < Count){
             return adjacent_<Index + 1, Count>(val, to, std::forward<Nodes>(nodes));
         }
-        else
-        {
+        else {
             return false;
         }
     }
@@ -152,19 +123,19 @@ static constexpr auto vert_(Nodes &&nodes, std::index_sequence<Is...>)
 }
 
 
-}
+} // namespace detail
 
 template<typename EnumType1, typename... EnumType>
 struct Node
 {
-    typedef EnumType1 value_type;
+    using value_type = EnumType1 ;
 
     EnumType1 m_name;
     std::array<EnumType1, sizeof...(EnumType)> m_tos;
     static constexpr size_t m_cnt = sizeof...(EnumType);
 
-    constexpr Node(const EnumType1 name, const EnumType... tos) : m_name(name),
-                                                                  m_tos({tos...}){};
+    constexpr explicit Node(const EnumType1 name, const EnumType... tos) : m_name(name),
+                                                                           m_tos({tos...}){};
 
 };
 
@@ -177,12 +148,10 @@ struct Graph
     std::tuple<NodeType...> m_nodes;
 
   public:
-    typedef decltype(std::tuple_size<decltype(m_nodes)>::value) size_type;
-
-  private:
+    using size_type                        = decltype(std::tuple_size<decltype(m_nodes)>::value);
     static constexpr size_type m_nodes_cnt = sizeof...(NodeType);
-    
-  public:
+
+
     explicit constexpr Graph(const NodeType... nodes) : m_nodes(std::move(nodes)...) {}
 
     template<size_t Index>
@@ -206,20 +175,20 @@ struct Graph
     {
         return detail::vert_(m_nodes, std::make_index_sequence<m_nodes_cnt>());
     }
-    
+
     template<typename EnumType>
     constexpr bool adjacent(EnumType val, EnumType to) const
     {
         return detail::adjacent_<0, sizeof...(NodeType)>(val, to, m_nodes);
     }
-    
+
     template<size_t N, typename EnumType>
-    constexpr EnumType successors(const EnumType val) const
+    constexpr EnumType successor(const EnumType val) const
     {
         return detail::get_node_impl<N, 0, sizeof...(NodeType)>(val, m_nodes);
     }
 
-    
+
     template<typename EnumType>
     constexpr size_t count(const EnumType val) const
     {
@@ -245,20 +214,12 @@ struct Graph
     }
 
     template<typename EnumType>
-    constexpr EnumType* followers(const EnumType val) const
+    constexpr const EnumType* followers(const EnumType val) const
     {
-        auto applc = [](auto&& arr){
-                         return arr.data();
-                     };
-        return detail::apply_<0, sizeof...(NodeType)>(val, m_nodes, applc);
-    }
 
-    template<typename EnumType>
-    constexpr EnumType* followers(const EnumType val)
-    {
-        auto applc = [](auto&& arr){
-                         return arr.data();
-                     };
+        const auto applc = [](auto&& arr){
+                               return arr.data();
+                           };
         return detail::apply_<0, sizeof...(NodeType)>(val, m_nodes, applc);
     }
 
@@ -271,4 +232,4 @@ constexpr auto get_successors(Graph& g, EnumType val)
     return std::make_pair(g.count(val), g.followers(val));
 }
 
-}
+} // namespace ctgraph
