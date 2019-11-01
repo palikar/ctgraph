@@ -1,0 +1,8 @@
+{
+    "project": "Compile time graph for C++",
+    "target": "./ctgraph.hpp",
+    "sources": [
+	"@CMAKE_CURRENT_SOURCE_DIR@/include/ctgraph.hpp"
+    ],
+    "include_paths": ["include"]
+}
