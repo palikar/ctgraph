@@ -90,5 +90,12 @@ int main(int, char**)
     static constexpr auto ptr_succ = graph.followers(NodeTypes::NODE_1);
     std::cout << static_cast<int>(ptr_succ[0]) << "\n";
 
+
+
+    // static constexpr auto graph_2 = Graph{Node{NodeTypes::NODE_1, NodeTypes::NODE_2},
+    //                                       NodeTypes::NODE_2};
+
+    
+
     return 0;
 }
