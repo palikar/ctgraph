@@ -1,28 +1,25 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
-include(GNUInstallDirs)
 
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 project(ctgraph LANGUAGES CXX)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-set(CMAKE_CXX_STANDARD 17)
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
-
-if (CMAKE_BINARY_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    message(FATAL_ERROR "Building in-source is not supported! Create a build dir and remove ${CMAKE_SOURCE_DIR}/CMakeCache.txt")
-endif()
+include(safeguards)
+include(GNUInstallDirs)
 
 find_program(CCACHE ccache)
 if(CCACHE)
     set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE})
 endif()
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 add_library(project_warnings INTERFACE)
 add_library(project_options INTERFACE)
 
 target_compile_features(project_options INTERFACE cxx_std_17)
-target_include_directories(project_options INTERFACE include)
 
 
 option(FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." TRUE)
@@ -82,10 +79,15 @@ endif()
 
 option(LIBCPP "Build with libc++" FALSE)
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND ${ALL_WARNINGS})
+
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 6.3)
+        target_compile_options(project_warnings INTERFACE
+            -Wduplicated-branches)
+    endif()
+    
     target_compile_options(project_warnings INTERFACE
 	-Wmisleading-indentation
         -Wduplicated-cond
-        -Wduplicated-branches
 	-Wlogical-op
 	-Wuseless-cast)
     target_link_libraries(project_options INTERFACE stdc++fs)
@@ -130,6 +132,8 @@ endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
+
+target_include_directories(project_options INTERFACE include)
 
 # Basic header-only library
 add_library(ctgraph_lib INTERFACE)

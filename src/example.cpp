@@ -33,8 +33,8 @@ int main(int, char**)
     using namespace ctgraph;
 
     // constructing a graph
-    const auto graph = Graph{Node{NodeTypes::NODE_1, NodeTypes::NODE_2, NodeTypes::NODE_3},
-                             Node{NodeTypes::NODE_2, NodeTypes::NODE_3, NodeTypes::NODE_4},
+    constexpr auto graph = Graph{Node{NodeTypes::NODE_1, NodeTypes::NODE_2, NodeTypes::NODE_3},
+                                 Node{NodeTypes::NODE_2, NodeTypes::NODE_3, NodeTypes::NODE_4},
                              Node{NodeTypes::NODE_3, NodeTypes::NODE_4},
                              Node{NodeTypes::NODE_4},
                              Node{NodeTypes::NODE_5, NodeTypes::NODE_6, NodeTypes::NODE_7}};
@@ -42,19 +42,19 @@ int main(int, char**)
     // if we also want to consider NODE_6 and NODE_7, we have to make entries for them, similar to NODE_4
 
     // getting the ith node in the graph
-    auto node_0 = graph.get_node<0>();
+    constexpr auto node_0 = graph.get_node<0>();
     // count of the successor of a given node
     std::cout << node_0.m_cnt << "\n";
 
     // getting the vertiecies of the graph
     // vertices is std::array<NodeTypes, 5>
-    auto vertices = graph.vertices(); 
+    constexpr auto vertices = graph.vertices(); 
     for(const auto& v: vertices ){
         std::cout << "Vertex: " << v << "\n";
     }
 
     // the count of all veriecies in the graph
-    auto size = graph.size();
+    constexpr auto size = graph.size();
     std::cout << "Size: " << size << "\n";
 
     std::cout << std::boolalpha;
@@ -72,22 +72,22 @@ int main(int, char**)
     graph.for_each(NodeTypes::NODE_2, [](const auto& node){ std::cout << "Node_2 successor: " << node << "\n";});
 
     // getting the ith successor of a node
-    auto node_1_succesor_0 = graph.successor<0>(NodeTypes::NODE_1);
+    constexpr auto node_1_succesor_0 = graph.successor<0>(NodeTypes::NODE_1);
     std::cout << static_cast<int>(node_1_succesor_0) << "\n";
 
     // getting all successor of a node
-    auto[count, ptr] = get_successors(graph, NodeTypes::NODE_3);
+    const auto[count, ptr] = get_successors(graph, NodeTypes::NODE_3);
     for (size_t i = 0; i < count; ++i)
     {
         std::cout << ptr[i] << "\n";
     }
 
     // getting the count of the successrs of a node
-    const auto num_succ = graph.count(NodeTypes::NODE_3);
+    constexpr auto num_succ = graph.count(NodeTypes::NODE_3);
     std::cout << num_succ << "\n";
 
     // getting pointer to the first succesor of a node
-    const auto ptr_succ = graph.followers(NodeTypes::NODE_1);
+    static auto ptr_succ = graph.followers(NodeTypes::NODE_1);
     std::cout << static_cast<int>(ptr_succ[0]) << "\n";
 
     return 0;
