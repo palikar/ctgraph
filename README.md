@@ -66,6 +66,83 @@ make test
 
 ## Usage
 
+As mentioned, including the single header file in your file is enough to get you started. To note is that CTGraph uses some C++17 features so a compile flag like `-std=c++17` is required to compile a file using CTGraph.
+
+
+
+The nodes for a graph are given through a user-defined `enum` like:
+
+```c++
+enum class NodeTypes
+{
+    UNKNOWN = 0,
+    NODE_1 = 1,
+    NODE_2 = 2,
+    NODE_3 = 3
+};
+```
+
+With that, we can now construct our graph in a &ldquo;static and constexpr&rdquo; way:
+
+```c++
+#include <ctgraph.hpp>
+static constexpr auto graph = ctgraph::Graph{ctgraph::Node{NodeTypes::NODE_1, NodeTypes::NODE_2, NodeTypes::NODE_3},
+                                             ctgraph::Node{NodeTypes::NODE_2, NodeTypes::NODE_3}};
+```
+
+The semantics of the constructor of ctgraph::Node are `<starting_vertex> [<follower(s)>]`. Only nodes starting node are considered vertices in the graph. IN the above example, `NODE_3` is not &ldquo;in&rdquo; the vertex list of the graph. For this to be the case, we have to define the graph as:
+
+```c++
+static constexpr auto graph = ctgraph::Graph{ctgraph::Node{NodeTypes::NODE_1, NodeTypes::NODE_2, NodeTypes::NODE_3},
+                                             ctgraph::Node{NodeTypes::NODE_2, NodeTypes::NODE_3},
+                                             ctgraph::Node{NodeTypes::NODE_3}};
+```
+
+From here on out, we can use the graph in all sorts of ways.
+
+
+
+Getting all of the vertices:
+
+```c++
+constexpr auto vertices = graph.vertices(); 
+for(const auto& v: vertices ){
+    std::cout << "Vertex: " << static_cast<int>(v) << "\n";
+}
+```
+
+
+
+Checking the size of the graph:
+
+```c++
+constexpr auto size = graph.size();
+std::cout << "Size: " << size << "\n";
+```
+
+The number of vertices is considered as &ldquo;size&rdquo;.
+
+
+
+Checking if Node is in the graph:
+
+```c++
+std::cout << graph.contains(NodeTypes::NODE_4) << "\n";
+```
+
+
+
+Checking if two nodes are adjacent in the graph:
+
+```c++
+std::cout << graph.adjacent(NodeTypes::NODE_2, NodeTypes::NODE_3) << "\n";
+std::cout << graph.adjacent(NodeTypes::NODE_3, NodeTypes::NODE_1) << "\n";
+```
+
+
+
+You can find a compilable and commented example in the [source folder](https://github.com/palikar/ctgraph/blob/master/src/example.cpp). It demonstrates most of the current features of the library.
+
 
 ## Acknowledgments
 

@@ -33,11 +33,11 @@ int main(int, char**)
     using namespace ctgraph;
 
     // constructing a graph
-    constexpr auto graph = Graph{Node{NodeTypes::NODE_1, NodeTypes::NODE_2, NodeTypes::NODE_3},
-                                 Node{NodeTypes::NODE_2, NodeTypes::NODE_3, NodeTypes::NODE_4},
-                             Node{NodeTypes::NODE_3, NodeTypes::NODE_4},
-                             Node{NodeTypes::NODE_4},
-                             Node{NodeTypes::NODE_5, NodeTypes::NODE_6, NodeTypes::NODE_7}};
+    static constexpr auto graph = Graph{Node{NodeTypes::NODE_1, NodeTypes::NODE_2, NodeTypes::NODE_3},
+                                        Node{NodeTypes::NODE_2, NodeTypes::NODE_3, NodeTypes::NODE_4},
+                                        Node{NodeTypes::NODE_3, NodeTypes::NODE_4},
+                                        Node{NodeTypes::NODE_4},
+                                        Node{NodeTypes::NODE_5, NodeTypes::NODE_6, NodeTypes::NODE_7}};
     // only the nodes NODE_1, NODE_2, NODE_3, NODE_4 and NODE_5 are considered 'in the graph'
     // if we also want to consider NODE_6 and NODE_7, we have to make entries for them, similar to NODE_4
 
@@ -87,7 +87,7 @@ int main(int, char**)
     std::cout << num_succ << "\n";
 
     // getting pointer to the first succesor of a node
-    static auto ptr_succ = graph.followers(NodeTypes::NODE_1);
+    static constexpr auto ptr_succ = graph.followers(NodeTypes::NODE_1);
     std::cout << static_cast<int>(ptr_succ[0]) << "\n";
 
     return 0;
