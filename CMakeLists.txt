@@ -176,8 +176,11 @@ if(BUILD_TESTS OR ONLY_COVERAGE)
     catch_discover_tests(graph_tests)
 
     if(ONLY_COVERAGE OR ENABLE_COVERAGE)
-        
+
         include(CodeCoverage)
+
+        set(COVERAGE_GCOVR_EXCLUDES "${PROJECT_SOURCE_DIR}/tests/catch.hpp" "${PROJECT_SOURCE_DIR}/src/*")
+
         setup_target_for_coverage_gcovr_html(
             NAME graph_coverage_html
             EXECUTABLE ctest -j2
@@ -190,7 +193,6 @@ if(BUILD_TESTS OR ONLY_COVERAGE)
     endif()
 
 endif()
-
 
 
 install(TARGETS ctgraph_lib

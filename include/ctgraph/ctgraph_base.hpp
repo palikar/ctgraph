@@ -73,7 +73,7 @@ static constexpr auto apply_(const EnumType val, Nodes &&nodes, Callable  &&call
         if constexpr (Index + 1 < Count){
             return apply_<Index + 1, Count>(val, std::forward<Nodes>(nodes), std::forward<Callable>(call));
         } else{
-            const std::array<EnumType, 1> arr{static_cast<EnumType>(1)};
+            const std::array<EnumType, 1> arr{static_cast<EnumType>(0)};
             return call(arr);
         }
     }
