@@ -1,8 +1,8 @@
-
 #include <ctgraph.hpp>
 
 enum class NodeTypes
 {
+    UNKNOWN = 0,
     NODE_1 = 1,
     NODE_2 = 2,
     NODE_3 = 3,
@@ -12,12 +12,14 @@ enum class NodeTypes
     NODE_7 = 7
 };
 
-
+// convenience functions for printing the value of the Nodes enum
 template<typename EnumType, typename To=int>
 To pr(EnumType node)
 {
     return static_cast<To>(node);
 }
+
+
 
 std::ostream& operator<<(std::ostream& os, const NodeTypes& c)
 {
@@ -30,57 +32,63 @@ int main(int, char**)
 {
     using namespace ctgraph;
 
-
+    // constructing a graph
     const auto graph = Graph{Node{NodeTypes::NODE_1, NodeTypes::NODE_2, NodeTypes::NODE_3},
                              Node{NodeTypes::NODE_2, NodeTypes::NODE_3, NodeTypes::NODE_4},
                              Node{NodeTypes::NODE_3, NodeTypes::NODE_4},
                              Node{NodeTypes::NODE_4},
-                             Node{NodeTypes::NODE_5, NodeTypes::NODE_6, NodeTypes::NODE_7}
-    };
+                             Node{NodeTypes::NODE_5, NodeTypes::NODE_6, NodeTypes::NODE_7}};
+    // only the nodes NODE_1, NODE_2, NODE_3, NODE_4 and NODE_5 are considered 'in the graph'
+    // if we also want to consider NODE_6 and NODE_7, we have to make entries for them, similar to NODE_4
 
+    // getting the ith node in the graph
+    auto node_0 = graph.get_node<0>();
+    // count of the successor of a given node
+    std::cout << node_0.m_cnt << "\n";
 
-    auto vert = graph.vertices();
-    for(const auto& v: vert ){
-        std::cout << v << "\n";
+    // getting the vertiecies of the graph
+    // vertices is std::array<NodeTypes, 5>
+    auto vertices = graph.vertices(); 
+    for(const auto& v: vertices ){
+        std::cout << "Vertex: " << v << "\n";
     }
-            
-    std::cout << graph.size() << "\n";
+
+    // the count of all veriecies in the graph
+    auto size = graph.size();
+    std::cout << "Size: " << size << "\n";
+
     std::cout << std::boolalpha;
 
+    // checking if a node is in the graph
     std::cout << graph.contains(NodeTypes::NODE_4) << "\n";
     std::cout << graph.contains(NodeTypes::NODE_6) << "\n";
 
+    // checking if two nodes are adjacent in the graph
+    // this means that the edge (node_1 -> node_2) exists
     std::cout << graph.adjacent(NodeTypes::NODE_2, NodeTypes::NODE_3) << "\n";
     std::cout << graph.adjacent(NodeTypes::NODE_2, NodeTypes::NODE_5) << "\n";
     
-    std::cout << graph.size() << "\n";
+    // iterating over the successors of a particular node 
+    graph.for_each(NodeTypes::NODE_2, [](const auto& node){ std::cout << "Node_2 successor: " << node << "\n";});
 
-    graph.for_each(NodeTypes::NODE_2, [](auto& node){
-                                          std::cout << static_cast<int>(node) << "\n";
-                                      });
+    // getting the ith successor of a node
+    auto node_1_succesor_0 = graph.successor<0>(NodeTypes::NODE_1);
+    std::cout << static_cast<int>(node_1_succesor_0) << "\n";
 
-    auto n = graph.successor<2>(NodeTypes::NODE_1);
-    std::cout << static_cast<int>(n) << "\n";
-
-    auto[cnt, ptr] = get_successors(graph, NodeTypes::NODE_3);
-    for (size_t i = 0; i < cnt; ++i)
+    // getting all successor of a node
+    auto[count, ptr] = get_successors(graph, NodeTypes::NODE_3);
+    for (size_t i = 0; i < count; ++i)
     {
-        std::cout << static_cast<int>(ptr[i]) << "\n";
+        std::cout << ptr[i] << "\n";
     }
 
-    const auto num = graph.count(NodeTypes::NODE_3);
-    std::cout << num << "\n";
-    const auto ptr_2 = graph.followers(NodeTypes::NODE_1);
-    std::cout << static_cast<int>(ptr_2[0]) << "\n";
+    // getting the count of the successrs of a node
+    const auto num_succ = graph.count(NodeTypes::NODE_3);
+    std::cout << num_succ << "\n";
 
-
-
-    std::cout << graph.m_nodes_cnt << "\n";;
-    auto nn = graph.get_node<0>();
-    std::cout << nn.m_cnt << "\n";;
-
-    
-
+    // getting pointer to the first succesor of a node
+    const auto ptr_succ = graph.followers(NodeTypes::NODE_1);
+    std::cout << static_cast<int>(ptr_succ[0]) << "\n";
 
     return 0;
 }
