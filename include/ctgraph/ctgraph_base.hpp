@@ -182,7 +182,8 @@ struct Graph
     using size_type                        = decltype(std::tuple_size<decltype(m_nodes)>::value);
     static constexpr size_type m_nodes_cnt = sizeof...(NodeType);
 
-    using iterator_type = detail::node_iterator<typename NthTypeOf<0, NodeType...>::value_type, sizeof...(NodeType)>;
+    using iterator = detail::node_iterator<typename NthTypeOf<0, NodeType...>::value_type, sizeof...(NodeType)>;
+    using const_iterator = detail::cnode_iterator<typename NthTypeOf<0, NodeType...>::value_type, sizeof...(NodeType)>;
 
 
     explicit constexpr Graph(const NodeType... nodes) : m_nodes(std::move(nodes)...)
@@ -244,17 +245,24 @@ struct Graph
     }
 
 
-    constexpr iterator_type begin() const
+    constexpr iterator begin() const
     {
         return graph_begin(*this);
     }
-    constexpr iterator_type end() const
+    
+    constexpr iterator end() const
     {
         return graph_end(*this);
     }
-    // constexpr auto cbegin() const {return this->vertices().cbegin();}
-    // constexpr auto cend() const {return this->vertices().cend();}
-	
+
+    constexpr const_iterator cbegin() const
+    {
+        return graph_cbegin(*this);
+    }
+    constexpr const_iterator cend() const
+    {
+        return graph_cend(*this);
+    }	
 	
 };
 

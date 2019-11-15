@@ -45,5 +45,5 @@ int main(int, char**)
     //     std::cout << n << "\n";
     // }
 
-    return pr(*(++graph.begin()));
+    return pr(*(graph.end()));
 }
