@@ -181,7 +181,7 @@ endif()
 
 
 
-option(BUILD_TESTS "Build the tests for the project" TRUE)
+option(BUILD_TESTS "Build the tests for the project" FALSE)
 if(BUILD_TESTS OR ONLY_COVERAGE)
     
     enable_testing()

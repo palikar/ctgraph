@@ -33,12 +33,20 @@ int main(int, char**)
     using namespace ctgraph;
 
     
-    static constexpr auto graph = Graph{Node{NodeTypes::NODE_1, NodeTypes::NODE_2, NodeTypes::NODE_3},
-                                        Node{NodeTypes::NODE_2, NodeTypes::NODE_3, NodeTypes::NODE_4},
-                                        Node{NodeTypes::NODE_3, NodeTypes::NODE_4},
-                                        Node{NodeTypes::NODE_4},
-                                        Node{NodeTypes::NODE_5, NodeTypes::NODE_6, NodeTypes::NODE_7}};
+    static constexpr auto graph = Graph{Node{NodeTypes::NODE_1, NodeTypes::NODE_2},
+                                        Node{NodeTypes::NODE_2}};
 
+    auto beg = graph.begin();
+    auto end = graph.end();
+
+    std::cout << *beg << "\n";
+    std::cout << *end << "\n";
+
+    
+    // for (auto n :  )
+    // {
+    //     std::cout << n << "\n";
+    // }
 
     
 

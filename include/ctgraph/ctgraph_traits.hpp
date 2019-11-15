@@ -1,3 +1,5 @@
+#pragma once
+
 #include "./ctgraph_std.hpp"
 
 namespace ctgraph

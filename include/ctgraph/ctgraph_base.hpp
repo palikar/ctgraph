@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "./ctgraph_std.hpp"
 #include "./ctgraph_traits.hpp"
 #include "./ctgraph_iterators.hpp"
@@ -169,6 +168,8 @@ struct Node
     constexpr explicit Node(const EnumType1 name, const EnumType... tos) : m_name(name), m_tos({ tos... }){};
 };
 
+template<int N, typename... Ts> using NthTypeOf =
+    typename std::tuple_element<N, std::tuple<Ts...>>::type;
 
 template<typename... NodeType>
 struct Graph
@@ -181,6 +182,8 @@ struct Graph
   public:
     using size_type                        = decltype(std::tuple_size<decltype(m_nodes)>::value);
     static constexpr size_type m_nodes_cnt = sizeof...(NodeType);
+
+    using iterator_type = detail::node_iterator<typename NthTypeOf<0, NodeType...>::value_type, sizeof...(NodeType)>;
 
 
     explicit constexpr Graph(const NodeType... nodes) : m_nodes(std::move(nodes)...)
@@ -242,16 +245,21 @@ struct Graph
     }
 
 
-	  constexpr auto begin() const {this->vertices().begin()}
-	  constexpr auto end() const {this->vertices().end()}
-	  constexpr auto cbegin() const {this->vertices().cbegin()}
-	  constexpr auto cend() const {this->vertices().cend()}
+    constexpr iterator_type begin() const
+    {
+        return graph_begin(*this);
+    }
+    constexpr iterator_type end() const
+    {
+        return graph_end(*this);
+    }
+    // constexpr auto cbegin() const {return this->vertices().cbegin();}
+    // constexpr auto cend() const {return this->vertices().cend();}
 	
 	
 };
 
-
-ptemplate<typename Graph, typename EnumType>
+template<typename Graph, typename EnumType>
 constexpr auto get_successors(Graph &g, EnumType val)
 {
 	static_assert(is_graph_v<Graph> , "get_successors requires a Graph as it first argument");
