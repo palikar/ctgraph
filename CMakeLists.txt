@@ -154,14 +154,14 @@ target_include_directories(ctgraph_lib INTERFACE
 if(NOT ONLY_COVERAGE)
 
     # The testing example
-    add_executable(ctgraph_example ./src/example.cpp)
-    target_link_libraries(ctgraph_example
+    add_executable(ctgraph_basic ./src/basic.cpp)
+    target_link_libraries(ctgraph_basic
         PRIVATE project_options project_warnings
         PUBLIC ctgraph_lib)
 
     # The iterator example
-    add_executable(ctgraph_iterators ./src/iterators_example.cpp)
-    target_link_libraries(ctgraph_example
+    add_executable(ctgraph_iterators ./src/iterators.cpp)
+    target_link_libraries(ctgraph_iterators
         PRIVATE project_options project_warnings
         PUBLIC ctgraph_lib)
 
