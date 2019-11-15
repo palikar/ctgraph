@@ -5,6 +5,7 @@
 
 namespace ctgraph
 {
+
 namespace detail
 {
 
@@ -18,9 +19,10 @@ class node_iterator
     using pointer    = EnumType*;
     using reference  = EnumType&;
     using difference_type = std::ptrdiff_t;
+    using iterator_category = std::input_iterator_tag;
 
     constexpr node_iterator(): m_nodes(), m_index(0) {}   
-    constexpr node_iterator(std::array<EnumType, N> nodes, int index): m_nodes(nodes), m_index(index) {}
+    constexpr node_iterator(std::array<EnumType, N> nodes, size_t index): m_nodes(nodes), m_index(index) {}
 
     constexpr reference       operator*()             {return m_nodes[m_index];}
     constexpr pointer         operator->()            {return &m_nodes[m_index];}
@@ -34,7 +36,7 @@ class node_iterator
 
   private:
     std::array<EnumType, N> m_nodes;
-    int m_index;
+    size_t m_index;
 };
 
 template<typename EnumType, size_t N>
@@ -46,10 +48,11 @@ class cnode_iterator
     using value_type = EnumType;
     using pointer    = const EnumType*;
     using reference  = const EnumType&;
-    using difference_type = std::ptrdiff_t;
+    using difference_type = size_t;
+    using iterator_category = std::input_iterator_tag;
 
     constexpr cnode_iterator(): m_nodes(), m_index(0) {}   
-    constexpr cnode_iterator(std::array<EnumType, N> nodes, int index): m_nodes(nodes), m_index(index) {}
+    constexpr cnode_iterator(std::array<EnumType, N> nodes, size_t index): m_nodes(nodes), m_index(index) {}
 
     constexpr reference       operator*()             {return m_nodes[m_index];}
     constexpr pointer         operator->()            {return &m_nodes[m_index];}
@@ -63,7 +66,7 @@ class cnode_iterator
 
   private:
     std::array<EnumType, N> m_nodes;
-    int m_index;
+    size_t m_index;
 };
 
 		
@@ -82,7 +85,7 @@ template<typename Graph>
 constexpr auto graph_end(Graph &g)
 {
 	static_assert(is_graph_v<Graph> , "begin requires a Graph as it first argument");
-    return detail::node_iterator(g.vertices(), static_cast<int>(std::size(g.vertices())));
+    return detail::node_iterator(g.vertices(), std::size(g.vertices()) - 1);
 }
 
 
@@ -98,7 +101,7 @@ template<typename Graph>
 constexpr auto graph_cend(Graph &g)
 {
 	static_assert(is_graph_v<Graph> , "begin requires a Graph as it first argument");
-    return detail::cnode_iterator(g.vertices(), static_cast<int>(std::size(g.vertices())));
+    return detail::cnode_iterator(g.vertices(), std::size(g.vertices()) - 1);
 }
 	
 

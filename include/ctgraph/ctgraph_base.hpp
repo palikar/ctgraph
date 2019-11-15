@@ -167,7 +167,7 @@ struct Node
     constexpr explicit Node(const EnumType1 name, const EnumType... tos) : m_name(name), m_tos({ tos... }){};
 };
 
-template<int N, typename... Ts> using NthTypeOf =
+template<size_t N, typename... Ts> using NthTypeOf =
     typename std::tuple_element<N, std::tuple<Ts...>>::type;
 
 template<typename... NodeType>
