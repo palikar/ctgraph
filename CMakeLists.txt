@@ -159,6 +159,12 @@ if(NOT ONLY_COVERAGE)
         PRIVATE project_options project_warnings
         PUBLIC ctgraph_lib)
 
+    # The iterator example
+    add_executable(ctgraph_iterators ./src/iterators_example.cpp)
+    target_link_libraries(ctgraph_example
+        PRIVATE project_options project_warnings
+        PUBLIC ctgraph_lib)
+
     # The single header include
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/ctgraph)
     configure_file(${PROJECT_SOURCE_DIR}/third_party/config.json.in ${PROJECT_SOURCE_DIR}/third_party/config.json)
