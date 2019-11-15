@@ -3,6 +3,7 @@
 
 #include "./ctgraph_std.hpp"
 #include "./ctgraph_traits.hpp"
+#include "./ctgraph_iterators.hpp"
 
 namespace ctgraph
 {
@@ -239,66 +240,26 @@ struct Graph
         constexpr auto application = [](auto &&arr) { return arr.data(); };
         return detail::apply_<0, sizeof...(NodeType)>(val, m_nodes, application);
     }
+
+
+	  constexpr auto begin() const {this->vertices().begin()}
+	  constexpr auto end() const {this->vertices().end()}
+	  constexpr auto cbegin() const {this->vertices().cbegin()}
+	  constexpr auto cend() const {this->vertices().cend()}
+	
+	
 };
 
 
-template<typename Graph, typename EnumType>
+ptemplate<typename Graph, typename EnumType>
 constexpr auto get_successors(Graph &g, EnumType val)
 {
-    static_assert(is_graph_v<Graph> , "get_successors requires a Graph as it first argument");
-    return std::make_pair(g.count(val), g.followers(val));
+	static_assert(is_graph_v<Graph> , "get_successors requires a Graph as it first argument");
+	return std::make_pair(g.count(val), g.followers(val));
 }
 
 }  // namespace ctgraph
 
 
-template<typename EnumType, typename... NodeType>
-class NodeIterator
-{
-  public:
-    using value_type = EnumType;
-    using pointer    = EnumType*;
-    using reference  = EnumType&;
-    using difference_type = std::ptrdiff_t;
-    using iterator_category = std::random_access_iterator_tag;
-
-    NodeIterator(): m_nodes(nullptr), m_index(0) {}   
-    NodeIterator(std::tuple<NodeType...>& nodes, int index): m_nodes(std::ref(nodes)), m_index(index) {}
-
-    reference       operator*()             {return (*v)[m_index];}
-    const reference operator*()       const {return (*v)[m_index];}
-    pointer         operator->()            {return &((*v)[m_index]);}
-    const pointer   operator->()      const {return &((*v)[m_index]);}
-    reference       operator[](int m)       {return (*v)[m_index + m];}
-    const reference operator[](int m) const {return (*v)[m_index + m];}
-
-
-    NodeIterator& operator++()       {++m_index;return *this;}
-    NodeIterator& operator--()       {--m_index;return *this;}
-    NodeIterator  operator++(int)    {Iterator r(*this);++m_index;return r;}
-    NodeIterator  operator--(int)    {Iterator r(*this);--m_index;return r;}
-
-    NodeIterator& operator+=(int n)  {m_index += n;return *this;}
-    NodeIterator& operator-=(int n)  {m_index -= n;return *this;}
-
-    NodeIterator operator+(int n)   const {Iterator r(*this);return r += n;}
-    NodeIterator operator-(int n)   const {Iterator r(*this);return r -= n;}
-
-    difference_type operator-(NodeIterator const& r) const {return m_index - r.m_index;}
-
-    bool operator<(NodeIterator const& r)  const {return m_index <  r.m_index;}
-    bool operator<=(NodeIterator const& r) const {return m_index <= r.m_index;}
-    bool operator>(NodeIterator const& r)  const {return m_index >  r.m_index;}
-    bool operator>=(NodeIterator const& r) const {return m_index >= r.m_index;}
-    bool operator!=(const NodeIterator &r) const {return m_index != r.m_index;}
-    bool operator==(const NodeIterator &r) const {return m_index == r.m_index;}
-
-  private:
-    std::reference_wrapper<std::tuple<NodeType...>> m_nodes;
-    int m_index;
-};
-
-
-
-template<typename EnumType>
-NodeIterator() -> NodeIteratory<EnumType, void>
+// template<typename EnumType>
+// NodeIterator() -> NodeIteratory<EnumType, void>
