@@ -1,8 +1,7 @@
 #pragma once
 
-#include "./ctgraph_std.hpp"
-#include "./ctgraph_traits.hpp"
-#include "./ctgraph_iterators.hpp"
+#include "./ctgraph/ctgraph_std.hpp"
+#include "./ctgraph/ctgraph_iterators.hpp"
 
 namespace ctgraph
 {

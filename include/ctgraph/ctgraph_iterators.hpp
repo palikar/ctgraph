@@ -1,7 +1,7 @@
 #pragma once
 
 #include "./ctgraph_std.hpp"
-// #include "./ctgraph_traits.hpp"
+#include "./ctgraph_traits.hpp"
 
 namespace ctgraph
 {
@@ -11,7 +11,7 @@ namespace detail
 template<typename EnumType, size_t N>
 class node_iterator
 {
-    // static_assert(std::is_enum_v<EnumType>, "The first argument of each node must be of enum type");
+    static_assert(std::is_enum_v<EnumType>, "The first argument of each node must be of enum type");
 			
   public:
     using value_type = EnumType;
@@ -44,7 +44,7 @@ class node_iterator
 template<typename Graph>
 constexpr auto graph_begin(Graph &g)
 {
-	// static_assert(is_graph_v<Graph> , "begin requires a Graph as it first argument");
+	static_assert(is_graph_v<Graph> , "begin requires a Graph as it first argument");
     return detail::node_iterator(g.vertices(), 0);
 }
 
@@ -52,7 +52,7 @@ constexpr auto graph_begin(Graph &g)
 template<typename Graph>
 constexpr auto graph_end(Graph &g)
 {
-	// static_assert(is_graph_v<Graph> , "begin requires a Graph as it first argument");
+	static_assert(is_graph_v<Graph> , "begin requires a Graph as it first argument");
     return detail::node_iterator(g.vertices(), static_cast<int>(std::size(g.vertices())));
 }
 	

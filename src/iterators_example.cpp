@@ -34,21 +34,16 @@ int main(int, char**)
 
     
     static constexpr auto graph = Graph{Node{NodeTypes::NODE_1, NodeTypes::NODE_2},
-                                        Node{NodeTypes::NODE_2}};
+                                        Node{NodeTypes::NODE_2},
+                                        Node{NodeTypes::NODE_3},
+                                        Node{NodeTypes::NODE_4},
+                                        Node{NodeTypes::NODE_5},
+                                        Node{NodeTypes::NODE_6}};
 
-    auto beg = graph.begin();
-    auto end = graph.end();
-
-    std::cout << *beg << "\n";
-    std::cout << *end << "\n";
-
-    
-    // for (auto n :  )
+    // for (auto n : graph)
     // {
     //     std::cout << n << "\n";
     // }
 
-    
-
-    return 0;
+    return pr(*(++graph.begin()));
 }
