@@ -4,6 +4,7 @@
 #include "./ctgraph/ctgraph_iterators.hpp"
 #include "./ctgraph/ctgraph_algorithms.hpp"
 #include "./ctgraph/ctgraph_map.hpp"
+#include "./ctgraph/ctgraph_vector.hpp"
 
 namespace ctgraph
 {
@@ -219,6 +220,54 @@ constexpr auto fill_visited_(Nodes nodes, std::index_sequence<Is...>)
 }
 
 
+template<typename EnumType, typename Nodes, typename... NodeType,
+         size_t... Is, std::size_t MapSize, typename Callable>
+constexpr void dfs_(EnumType from, Callable && call, Nodes nodes, cx::map<EnumType, bool, MapSize> &visited, std::index_sequence<Is...>)
+{
+    if (visited[from]) { return; }
+    std::array arr{ (std::tuple(std::get<Is>(nodes).m_name, std::get<Is>(nodes).m_cnt, std::get<Is>(nodes).m_tos.data()))... };
+    for (const auto [node, cnt, tos] : arr)
+    {
+        if (node != from) { continue; }
+        
+        visited[node] = true;
+        call(node);
+        
+        for (size_t i = 0; i < cnt; ++i) {
+            if (visited[*(tos+i)]) { continue; }
+
+            dfs_(*(tos+i), call, nodes, visited,
+                 std::make_index_sequence<sizeof...(Is)>());
+        }
+        
+        
+        
+    }
+}
+
+// template<typename EnumType, typename Nodes, typename... NodeType,
+//          size_t... Is, std::size_t MapSize, typename Callable>
+// constexpr void bfs_(EnumType from, Callable && call, Nodes nodes, cx::map<EnumType, bool, MapSize> &visited, std::index_sequence<Is...>)
+// {
+//     std::array arr{ (std::tuple(std::get<Is>(nodes).m_name, std::get<Is>(nodes).m_cnt, std::get<Is>(nodes).m_tos.data()))... };
+//     for (const auto [node, cnt, tos] : arr)
+//     {
+//         if (node != from) { continue; }
+//         visited[node] = true;
+
+//         for (size_t i = 0; i < cnt; ++i) {
+//              if (visited[*(tos+i)]) { continue; }
+//              call(*(tos+i));
+//         }
+        
+//         for (size_t i = 0; i < cnt; ++i) {
+//             if (visited[*(tos+i)]) { continue; }
+//             visited[*(tos+i)] = true;
+//             bfs_(*(tos+i), call, nodes, visited, std::make_index_sequence<sizeof...(Is)>());
+//         }    
+//     }
+// }
+
 }  // namespace detail
 
 
@@ -342,6 +391,45 @@ struct Graph
             detail::fill_visited_<EnumType, decltype(m_nodes), NodeType...>(m_nodes, std::make_index_sequence<m_nodes_cnt>()),
             std::make_index_sequence<m_nodes_cnt>());   
     }
+
+    
+    template<typename EnumType, typename Callable>
+    constexpr void dfs( EnumType val, Callable  &&call) const
+    {
+        auto visited = detail::fill_visited_<EnumType, decltype(m_nodes), NodeType...>(m_nodes, std::make_index_sequence<m_nodes_cnt>());
+        detail::dfs_<EnumType, decltype(m_nodes), NodeType...>(
+            val, std::forward<Callable>(call), m_nodes,
+            visited,
+            std::make_index_sequence<m_nodes_cnt>());
+    }
+
+    template<typename EnumType, typename Callable>
+    constexpr void bfs( EnumType val, Callable  call) const
+    {
+        auto visited = detail::fill_visited_<EnumType, decltype(m_nodes), NodeType...>(m_nodes, std::make_index_sequence<m_nodes_cnt>());
+        cx::vector<EnumType, static_cast<EnumType>(0), m_nodes_cnt> vec{};
+        vec.push_back(val);
+
+        while (!vec.empty()) {
+            auto node = vec.pop_fron();
+            auto fol = vec.followers(node);
+            auto cnt = vec.count(node);
+
+            for (size_t i = 0; i < cnt; ++i) {
+                if (!visited[*(fol+i)]) {
+                    visited[*(fol+i)] = true;
+                    vec.push_back(*(fol+i));
+                }                
+            }
+        }
+        
+        // auto visited = detail::fill_visited_<EnumType, decltype(m_nodes), NodeType...>(m_nodes, std::make_index_sequence<m_nodes_cnt>());
+        // detail::bfs_<EnumType, decltype(m_nodes), NodeType...>(
+        //     val, std::forward<Callable>(call), m_nodes,
+        //     visited,
+        //     std::make_index_sequence<m_nodes_cnt>());
+    }
+
     
 };
 
