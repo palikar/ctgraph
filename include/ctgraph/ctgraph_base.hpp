@@ -167,8 +167,8 @@ static constexpr auto vert_(Nodes &&nodes, std::index_sequence<Is...>)
 
 
 template<typename EnumType, typename Nodes, typename... NodeType,
-         size_t... Is>
-constexpr bool path_(EnumType from, EnumType to, Nodes nodes, cx::map<EnumType, bool> visited, std::index_sequence<Is...>)
+         size_t... Is, std::size_t MapSize>
+constexpr bool path_(EnumType from, EnumType to, Nodes nodes, cx::map<EnumType, bool, MapSize> visited, std::index_sequence<Is...>)
 {
     std::array arr{ (std::tuple(std::get<Is>(nodes).m_name, std::get<Is>(nodes).m_cnt, std::get<Is>(nodes).m_tos.data()))... };
     for (const auto [node, cnt, tos] : arr)
@@ -209,7 +209,7 @@ template<typename EnumType, typename Nodes, typename... NodeType,
          size_t... Is>
 constexpr auto fill_visited_(Nodes nodes, std::index_sequence<Is...>)
 {
-    cx::map<EnumType, bool> visited{};
+    cx::map<EnumType, bool, sizeof...(Is)> visited{};
     std::array arr{ (std::tuple(std::get<Is>(nodes).m_name, std::get<Is>(nodes).m_cnt, std::get<Is>(nodes).m_tos.data()))... };
     for (const auto [node, cnt, tos] : arr)
     {

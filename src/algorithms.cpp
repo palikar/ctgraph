@@ -49,11 +49,9 @@ int main(int, char**)
                                         Node{NodeTypes::NODE_10, NodeTypes::NODE_11},
                                         Node{NodeTypes::NODE_11}};
 
-    auto i = graph.path_exists(NodeTypes::NODE_1, NodeTypes::NODE_7);
-    // static_assert(i == 1, "");
-    // constexpr auto i = graph.path_exists<NodeTypes::NODE_1, NodeTypes::NODE_9>();
-    // static_assert(i == 1, "");
-    // std::cout << i << "\n";
-
+    constexpr auto i = graph.path_exists(NodeTypes::NODE_1, NodeTypes::NODE_7);
+    static_assert(i == 1, "");
+    std::cout << i << "\n";
+    
     return 0;
 }
