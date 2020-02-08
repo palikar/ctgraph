@@ -85,13 +85,10 @@ class vector
     }
 
     constexpr Value& pop_front() {
-        Value& v = m_data[0];
-        m_size--;
+        Value& v = m_data[m_front++];
         return v;
-        
     }
     
-
     constexpr const Value &back() const {
         if (empty()) {
             throw std::range_error("Index past end of vector");
@@ -109,7 +106,7 @@ class vector
 
     constexpr auto capacity() const { return Size; }
     constexpr auto size() const { return m_size; }
-    constexpr auto empty() const { return m_size == 0; }
+    constexpr auto empty() const { return m_size == m_front; }
 
     constexpr void clear() { m_size = 0; }
 
@@ -118,8 +115,9 @@ class vector
     }
 
   private:
-storage_t m_data{};
-std::size_t m_size{0};
+    storage_t m_data{};
+    std::size_t m_size{0};
+    std::size_t m_front{0};
 };
 
 

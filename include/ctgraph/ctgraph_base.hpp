@@ -409,27 +409,20 @@ struct Graph
         auto visited = detail::fill_visited_<EnumType, decltype(m_nodes), NodeType...>(m_nodes, std::make_index_sequence<m_nodes_cnt>());
         cx::vector<EnumType, static_cast<EnumType>(0), m_nodes_cnt> vec{};
         vec.push_back(val);
-
+        visited[val] = true;
         while (!vec.empty()) {
-            auto node = vec.pop_fron();
-            auto fol = vec.followers(node);
-            auto cnt = vec.count(node);
-
+            auto node = vec.pop_front();
+            call(node);
+            auto fol = followers(node);
+            auto cnt = count(node);
+            
             for (size_t i = 0; i < cnt; ++i) {
-                if (!visited[*(fol+i)]) {
-                    visited[*(fol+i)] = true;
-                    vec.push_back(*(fol+i));
-                }                
+                if (visited[*(fol+i)]) { continue; }
+                visited[*(fol+i)] = true;
+                vec.push_back(*(fol+i));
             }
         }
-        
-        // auto visited = detail::fill_visited_<EnumType, decltype(m_nodes), NodeType...>(m_nodes, std::make_index_sequence<m_nodes_cnt>());
-        // detail::bfs_<EnumType, decltype(m_nodes), NodeType...>(
-        //     val, std::forward<Callable>(call), m_nodes,
-        //     visited,
-        //     std::make_index_sequence<m_nodes_cnt>());
     }
-
     
 };
 
