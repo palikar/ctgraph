@@ -48,17 +48,17 @@ int main(int, char**)
                                         Node{NodeTypes::NODE_10, NodeTypes::NODE_11},
                                         Node{NodeTypes::NODE_11}};
 
-    // constexpr auto i = graph.path_exists(NodeTypes::NODE_1, NodeTypes::NODE_7);    
-    // static_assert(i == 1, "");
+    constexpr auto i = graph.path_exists(NodeTypes::NODE_1, NodeTypes::NODE_7);    
+    static_assert(i == 1, "");
 
-    auto i = graph.sinks_count();
-    std::cout << i << "\n";
+    constexpr auto cnt = graph.sinks_count();
+    static_assert(cnt == 4, "");
     
-    auto s = sinks(graph);
-    for (auto& sink : s) {
-        std::cout << sink << "\n";
-    }
-
+    constexpr auto s = sinks(graph);
+    static_assert(s[0] == NodeTypes::NODE_6, "");
+    static_assert(s[1] == NodeTypes::NODE_7, "");
+    static_assert(s[2] == NodeTypes::NODE_9, "");
+    static_assert(s[3] == NodeTypes::NODE_11, "");
     
 
     // std::cout << "DFS:" << "\n";
