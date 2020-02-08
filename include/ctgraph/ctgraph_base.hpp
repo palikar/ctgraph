@@ -13,69 +13,6 @@ template<typename Graph, typename EnumType>
 constexpr auto get_successors(Graph &g, EnumType val);
 
 
-template<typename Nodes, size_t... Js>
-constexpr auto sinks_cnt(Nodes t_nodes, std::index_sequence<Js...> ){
-    return ((std::get<Js>(t_nodes).m_cnt == 0 ? 1 : 0) + ...);
-};
-
-
-template<typename EnumType, typename Nodes, typename... NodeType, size_t... Is>
-constexpr auto sinks_(Nodes nodes, std::index_sequence<Is...>)
-{
-    const std::array arr{ (std::tuple(std::get<Is>(nodes).m_name, std::get<Is>(nodes).m_cnt, std::get<Is>(nodes).m_tos.data()))... };
-    cx::map<EnumType, int, sizeof...(Is)>ins{};
-    
-    for (const auto [node, cnt, tos] : arr)
-    {
-        ins[node] = 0;
-    }
-    
-    for (const auto [node_1, cnt_1, tos_1] : arr)
-    {
-        for (const auto [node_2, cnt_2, tos_2] : arr)
-        {
-            if (detail::adjacent_<0, sizeof...(Is)>(node_1, node_2, nodes)) {
-                ins[node_2]++;
-            }
-            
-        }
-    }
-
-    std::array<EnumType, sizeof...(Is)> sources{};
-    int index = 0;
-    ((ins[std::get<Is>(nodes).m_name] == 0 ? (sources[index++] = std::get<Is>(nodes).m_name) : static_cast<EnumType>(0)),  ...);
-    return sources;
-}
-
-namespace detail
-{
-
-template<typename EnumType, typename Nodes, size_t... Is>
-static constexpr auto sinks_(Nodes &&nodes, std::index_sequence<Is...>)
-{
-    // const std::array arr{ (std::tuple(std::get<Is>(nodes).m_name, std::get<Is>(nodes).m_cnt, std::get<Is>(nodes).m_tos.data()))... };
-
-    cx::map<EnumType, int, sizeof...(Is)>ins{};
-    const auto s = ((ins[std::get<Is>(nodes).m_name] = 0 ? 1 : 0) + ... );
-    
-    // for (const auto [node_1, cnt_1, tos_1] : arr)
-    // {
-    //     for (const auto [node_2, cnt_2, tos_2] : arr)
-    //     {
-    //         if (detail::adjacent_<0, sizeof...(Is)>(node_1, node_2, nodes)) {
-    //             ins[node_2]++;
-    //         }
-            
-    //     }
-    // }
-    
-    return ((std::get<Is>(nodes).m_cnt == 0 ? 1 : 0) + ...);
-}
-
-}
-    
-
-
 template<typename EnumType1, typename... EnumType>
 struct Node
 {
@@ -228,16 +165,14 @@ struct Graph
         }
     }
 
-    constexpr auto sinks_count() const
-    {
-        auto const sinks_cout = detail::sinks_<typename NthTypeOf<0, NodeType...>::value_type>(m_nodes, std::make_index_sequence<m_nodes_cnt>());
-        return sinks_cout;
-    }
-
     constexpr auto sources_count() const
     {
-        auto const source_cout = detail::sources_(m_nodes, std::make_index_sequence<m_nodes_cnt>());
-        return source_cout;
+        return detail::sources_<typename NthTypeOf<0, NodeType...>::value_type>(m_nodes, std::make_index_sequence<m_nodes_cnt>());
+    }
+
+    constexpr auto sinks_count() const
+    {
+        return detail::sinks_(m_nodes, std::make_index_sequence<m_nodes_cnt>());
     }
     
     template<typename... NodeTypee>
@@ -248,31 +183,24 @@ struct Graph
 };
 
 template<typename... NodeType>
-constexpr auto sources(Graph<NodeType...> g )
+constexpr auto sinks(Graph<NodeType...> g )
 {
-    auto const sinks_cout = g.sources_count();
+    auto const sinks_cout = g.sinks_count();
     std::array<typename NthTypeOf<0, NodeType...>::value_type, sinks_cout> arr{};
-    detail::fill_sources_(g.m_nodes, arr, std::make_index_sequence<g.m_nodes_cnt>());
+    detail::fill_sinks_(g.m_nodes, arr, std::make_index_sequence<g.m_nodes_cnt>());
     return arr;
 }
 
 template<typename... NodeType>
-constexpr auto sinks(Graph<NodeType...> g )
+constexpr auto sources(Graph<NodeType...> g )
 {
-    const auto sor = sinks_<typename NthTypeOf<0, NodeType...>::value_type,
-                              decltype(g.m_nodes),
-                               NodeType ...>(g.m_nodes, std::make_index_sequence<g.m_nodes_cnt>());
+    const auto sink_nodes = detail::source_nodes<typename NthTypeOf<0, NodeType...>::value_type,
+                                                 decltype(g.m_nodes),
+                                               NodeType ...>(g.m_nodes, std::make_index_sequence<g.m_nodes_cnt>());
 
-    const auto i = g.sinks_count();
-    std::array<typename NthTypeOf<0, NodeType...>::value_type, i> arr{};
+    const auto i = static_cast<size_t>(g.sources_count());
     
-    // constexpr auto sub_array = [](auto& t_arr, auto ... Js){
-    //     return std::array{t_arr[Js]...};
-    // };
-
- 
-    
-    return 0;
+    return std::pair{sink_nodes, i};
 }
 
 

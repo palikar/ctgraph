@@ -243,15 +243,63 @@ constexpr void dfs_(EnumType from, Callable && call, Nodes nodes, cx::map<EnumTy
 }
 
 template<typename Nodes, size_t... Is>
-static constexpr auto sources_(Nodes &&nodes, std::index_sequence<Is...>)
+static constexpr auto sinks_(Nodes &&nodes, std::index_sequence<Is...>)
 {
     return ((std::get<Is>(nodes).m_cnt == 0 ? 1 : 0) + ... );
 }
 
+template<typename EnumType, typename Nodes, size_t... Is>
+static constexpr auto sources_(Nodes &&nodes, std::index_sequence<Is...>)
+{ 
+    const std::array arr{ (std::tuple(std::get<Is>(nodes).m_name, std::get<Is>(nodes).m_cnt, std::get<Is>(nodes).m_tos.data()))... };
 
+    cx::map<EnumType, int, sizeof...(Is)>ins{};
+    [[maybe_unused]] auto s = ((ins[std::get<Is>(nodes).m_name] = 0 ? 1 : 0) + ... );
+    
+    for (const auto [node_1, cnt_1, tos_1] : arr)
+    {
+        for (const auto [node_2, cnt_2, tos_2] : arr)
+        {
+            if (detail::adjacent_<0, sizeof...(Is)>(node_1, node_2, nodes)) {
+                ins[node_2]++;
+            }
+            
+        }
+    }
+    
+    return ((ins[std::get<Is>(nodes).m_name] == 0 ? 1 : 0) + ...);
+}
+
+template<typename EnumType, typename Nodes, typename... NodeType, size_t... Is>
+constexpr auto source_nodes(Nodes nodes, std::index_sequence<Is...>)
+{
+    const std::array arr{ (std::tuple(std::get<Is>(nodes).m_name, std::get<Is>(nodes).m_cnt, std::get<Is>(nodes).m_tos.data()))... };
+    cx::map<EnumType, int, sizeof...(Is)>ins{};
+    
+    for (const auto [node, cnt, tos] : arr)
+    {
+        ins[node] = 0;
+    }
+    
+    for (const auto [node_1, cnt_1, tos_1] : arr)
+    {
+        for (const auto [node_2, cnt_2, tos_2] : arr)
+        {
+            if (detail::adjacent_<0, sizeof...(Is)>(node_1, node_2, nodes)) {
+                ins[node_2]++;
+            }
+            
+        }
+    }
+
+    std::array<EnumType, sizeof...(Is)> sources{};
+    int index = 0;
+    ((ins[std::get<Is>(nodes).m_name] == 0 ? (sources[index++] = std::get<Is>(nodes).m_name) : static_cast<EnumType>(0)),  ...);
+    return sources;
+}
 
 template<typename Nodes, size_t... Is, typename EnumType, size_t SinksSize>
-static constexpr auto fill_sources_(Nodes &&nodes,std::array<EnumType, SinksSize>& sinks_arr, std::index_sequence<Is...>)
+static constexpr auto fill_sinks_(Nodes &&nodes,std::array<EnumType, SinksSize>& sinks_arr, std::index_sequence<Is...>)
 {
 
     int i = 0;
