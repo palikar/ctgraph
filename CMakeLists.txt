@@ -193,7 +193,7 @@ if(BUILD_TESTS OR ONLY_COVERAGE)
     enable_testing()
     include(CTest)
     include(Catch)
-    add_executable(graph_tests ./tests/graph_test.cpp ./tests/main_test.cpp ./tests/functions_test.cpp ./tests/iterators_test.cpp)
+    add_executable(graph_tests ./tests/graph_test.cpp ./tests/main_test.cpp ./tests/functions_test.cpp ./tests/iterators_test.cpp ./tests/algorithms_test.cpp)
     target_link_libraries(graph_tests
         PRIVATE project_options project_warnings # Catch2::Catch2
         PUBLIC ctgraph_lib)
