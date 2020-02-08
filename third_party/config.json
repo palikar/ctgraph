@@ -2,7 +2,7 @@
     "project": "Compile time graph for C++",
     "target": "./ctgraph.hpp",
     "sources": [
-	"/home/arnaud/temp/ctgraph/include/ctgraph.hpp"
+	"/home/arnaud/code/ctgraph/include/ctgraph.hpp"
     ],
     "include_paths": ["include"]
 }

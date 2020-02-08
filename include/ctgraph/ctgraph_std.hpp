@@ -1,5 +1,10 @@
 #pragma once
 
+#include <array>
+#include <cstddef>
+#include <functional>
+#include <stdexcept>
+#include <type_traits>
 #include <algorithm>
 #include <array>
 #include <iostream>

@@ -37,23 +37,23 @@ int main(int, char**)
     using namespace ctgraph;
 
     // NodeTypes::NODE_2, NodeTypes::NODE_3,
-    static constexpr auto graph = Graph{Node{NodeTypes::NODE_1, NodeTypes::NODE_8},
-                                        // Node{NodeTypes::NODE_2, NodeTypes::NODE_3, NodeTypes::NODE_4},
-                                        // Node{NodeTypes::NODE_3, NodeTypes::NODE_4, NodeTypes::NODE_5},
-                                        // Node{NodeTypes::NODE_4},
-                                        // Node{NodeTypes::NODE_5, NodeTypes::NODE_6, NodeTypes::NODE_7},
-                                        // Node{NodeTypes::NODE_6},
-                                        // Node{NodeTypes::NODE_7},
+    static constexpr auto graph = Graph{Node{NodeTypes::NODE_1, NodeTypes::NODE_8, NodeTypes::NODE_2, NodeTypes::NODE_3},
+                                        Node{NodeTypes::NODE_2, NodeTypes::NODE_3, NodeTypes::NODE_4},
+                                        Node{NodeTypes::NODE_3, NodeTypes::NODE_4, NodeTypes::NODE_5},
+                                        Node{NodeTypes::NODE_4},
+                                        Node{NodeTypes::NODE_5, NodeTypes::NODE_6, NodeTypes::NODE_7},
+                                        Node{NodeTypes::NODE_6},
+                                        Node{NodeTypes::NODE_7},
                                         Node{NodeTypes::NODE_8, NodeTypes::NODE_9, NodeTypes::NODE_10},
                                         Node{NodeTypes::NODE_9},
                                         Node{NodeTypes::NODE_10, NodeTypes::NODE_11},
                                         Node{NodeTypes::NODE_11}};
 
-
-    path_exists<NodeTypes::NODE_1, NodeTypes::NODE_9>(graph);
+    auto i = graph.path_exists(NodeTypes::NODE_1, NodeTypes::NODE_7);
+    // static_assert(i == 1, "");
     // constexpr auto i = graph.path_exists<NodeTypes::NODE_1, NodeTypes::NODE_9>();
     // static_assert(i == 1, "");
-    std::cout << i << "\n";
+    // std::cout << i << "\n";
 
     return 0;
 }

@@ -2,20 +2,24 @@
 
 #include "./ctgraph/ctgraph_std.hpp"
 #include "./ctgraph/ctgraph_iterators.hpp"
+#include "./ctgraph/ctgraph_algorithms.hpp"
+#include "./ctgraph/ctgraph_map.hpp"
 
 namespace ctgraph
 {
 template<typename Graph, typename EnumType>
 constexpr auto get_successors(Graph &g, EnumType val);
-    
+
 namespace detail
 {
 
 template<class InputIt, class T>
-constexpr InputIt find(InputIt first, InputIt last, const T& value)
+constexpr InputIt find(InputIt first, InputIt last, const T &value)
 {
-    for (; first != last; ++first) {
-        if (*first == value) {
+    for (; first != last; ++first)
+    {
+        if (*first == value)
+        {
             return first;
         }
     }
@@ -34,9 +38,9 @@ static constexpr size_t count_(const EnumType val, Nodes &&nodes)
     else
     {
         if constexpr (Index + 1 < Count)
-                     {
-                         return count_<Index + 1, Count>(val, std::forward<Nodes>(nodes));
-                     }
+        {
+            return count_<Index + 1, Count>(val, std::forward<Nodes>(nodes));
+        }
         else
         {
             return 0;
@@ -62,9 +66,9 @@ constexpr static EnumType get_node_impl(const EnumType val, Nodes &&nodes)
     else
     {
         if constexpr (Index + 1 < Count)
-                     {
-                         return get_node_impl<N, Index + 1, Count>(val, std::forward<Nodes>(nodes));
-                     }
+        {
+            return get_node_impl<N, Index + 1, Count>(val, std::forward<Nodes>(nodes));
+        }
         else
         {
             return val;
@@ -83,9 +87,9 @@ static constexpr void for_each_(const EnumType val, Nodes &&nodes, Callable &&ca
     else
     {
         if constexpr (Index + 1 < Count)
-                     {
-                         for_each_<Index + 1, Count>(val, std::forward<Nodes>(nodes), std::forward<Callable>(call));
-                     }
+        {
+            for_each_<Index + 1, Count>(val, std::forward<Nodes>(nodes), std::forward<Callable>(call));
+        }
     }
 }
 
@@ -100,9 +104,9 @@ static constexpr auto apply_(const EnumType val, Nodes &&nodes, Callable &&call)
     else
     {
         if constexpr (Index + 1 < Count)
-                     {
-                         return apply_<Index + 1, Count>(val, std::forward<Nodes>(nodes), std::forward<Callable>(call));
-                     }
+        {
+            return apply_<Index + 1, Count>(val, std::forward<Nodes>(nodes), std::forward<Callable>(call));
+        }
         else
         {
             const std::array<EnumType, 1> arr{ static_cast<EnumType>(0) };
@@ -122,9 +126,9 @@ static constexpr auto contains_(const EnumType val, Nodes &&nodes)
     else
     {
         if constexpr (Index + 1 < Count)
-                     {
-                         return contains_<Index + 1, Count>(val, std::forward<Nodes>(nodes));
-                     }
+        {
+            return contains_<Index + 1, Count>(val, std::forward<Nodes>(nodes));
+        }
         else
         {
             return false;
@@ -144,9 +148,9 @@ static constexpr auto adjacent_(const EnumType val, const EnumType to, Nodes &&n
     else
     {
         if constexpr (Index + 1 < Count)
-                     {
-                         return adjacent_<Index + 1, Count>(val, to, std::forward<Nodes>(nodes));
-                     }
+        {
+            return adjacent_<Index + 1, Count>(val, to, std::forward<Nodes>(nodes));
+        }
         else
         {
             return false;
@@ -159,6 +163,59 @@ static constexpr auto vert_(Nodes &&nodes, std::index_sequence<Is...>)
 {
     // return std::array<typename decltype(std::get<0>(nodes))::value_type, std::tuple_size<Nodes>::value>((std::get<Is>(nodes).m_name) ...);
     return std::array{ (std::get<Is>(nodes).m_name)... };
+}
+
+
+template<typename EnumType, typename Nodes, typename... NodeType,
+         size_t... Is>
+constexpr bool path_(EnumType from, EnumType to, Nodes nodes, cx::map<EnumType, bool> visited, std::index_sequence<Is...>)
+{
+    std::array arr{ (std::tuple(std::get<Is>(nodes).m_name, std::get<Is>(nodes).m_cnt, std::get<Is>(nodes).m_tos.data()))... };
+    for (const auto [node, cnt, tos] : arr)
+    {
+
+        if (node != from)
+        {
+            continue;
+        }
+
+        if (cnt == 0)
+        {
+            return false;
+        }
+        
+        if (detail::adjacent_<0, sizeof...(NodeType)>(from, to, nodes))
+        {
+            return true;
+        }
+        else
+        {
+            visited[node] = true;
+            for (size_t i = 0; i < cnt; ++i) {
+                if (visited[*(tos+i)]) {
+                    continue;
+                }
+                if (path_<EnumType, decltype(nodes), NodeType...>(
+                        *(tos+i), to, nodes, visited, std::make_index_sequence<sizeof...(Is)>())) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+template<typename EnumType, typename Nodes, typename... NodeType,
+         size_t... Is>
+constexpr auto fill_visited_(Nodes nodes, std::index_sequence<Is...>)
+{
+    cx::map<EnumType, bool> visited{};
+    std::array arr{ (std::tuple(std::get<Is>(nodes).m_name, std::get<Is>(nodes).m_cnt, std::get<Is>(nodes).m_tos.data()))... };
+    for (const auto [node, cnt, tos] : arr)
+    {
+        visited[node] = false;
+    }
+    return visited;
 }
 
 
@@ -180,8 +237,8 @@ struct Node
     constexpr explicit Node(const EnumType1 name, const EnumType... tos) : m_name(name), m_tos({ tos... }){};
 };
 
-template<size_t N, typename... Ts> using NthTypeOf =
-                 typename std::tuple_element<N, std::tuple<Ts...>>::type;
+template<size_t N, typename... Ts>
+using NthTypeOf = typename std::tuple_element<N, std::tuple<Ts...>>::type;
 
 template<typename... NodeType>
 struct Graph
@@ -195,7 +252,7 @@ struct Graph
     using size_type                        = decltype(std::tuple_size<decltype(m_nodes)>::value);
     static constexpr size_type m_nodes_cnt = sizeof...(NodeType);
 
-    using iterator = detail::node_iterator<typename NthTypeOf<0, NodeType...>::value_type, sizeof...(NodeType)>;
+    using iterator       = detail::node_iterator<typename NthTypeOf<0, NodeType...>::value_type, sizeof...(NodeType)>;
     using const_iterator = detail::cnode_iterator<typename NthTypeOf<0, NodeType...>::value_type, sizeof...(NodeType)>;
 
 
@@ -261,7 +318,7 @@ struct Graph
     {
         return graph_begin(*this);
     }
-    
+
     constexpr iterator end() const
     {
         return graph_end(*this);
@@ -276,88 +333,23 @@ struct Graph
         return graph_cend(*this);
     }
 
-
-
+    template<typename EnumType>
+    constexpr auto path_exists(EnumType from, EnumType to) const
+    {
+        
+        return detail::path_<EnumType, decltype(m_nodes), NodeType...>(
+            from, to, m_nodes,
+            detail::fill_visited_<EnumType, decltype(m_nodes), NodeType...>(m_nodes, std::make_index_sequence<m_nodes_cnt>()),
+            std::make_index_sequence<m_nodes_cnt>());   
+    }
     
-    // template<typename NthTypeOf<0, NodeType...>::value_type from,
-    //          typename NthTypeOf<0, NodeType...>::value_type to,
-    //          typename EnumType,
-    //          size_t... Is, size_t vis = 0 , size_t... Js >
-    // constexpr bool path_predicate(std::index_sequence<Is...>,
-    //                               std::array<EnumType, vis> visited= {},
-    //                               std::index_sequence<Js...> = {}) const
-    // {
-        
-
-    //     constexpr std::array arr{ (std::tuple(std::get<Is>(m_nodes).m_name, std::get<Is>(m_nodes).m_cnt, std::get<Is>(m_nodes).m_tos.data()))...}; 
-    //     for (const auto [node, cnt, tos] : arr) {
-            
-    //         if (node != from) {
-    //             continue;
-    //         }
-
-    //         if (cnt==0) {
-    //             return false;
-    //         }
-
-    //         if (detail::adjacent_<0, sizeof...(NodeType)>(from, to, m_nodes)) {
-    //             return true;
-    //             }
-    //         else
-    //         {
-    //             constexpr std::array<EnumType, visited.size()+1> expanded{visited[Js]..., node};
-                
-    //             constexpr auto visited_sequence = std::make_index_sequence<visited.size()+1>();
-        
-    //             constexpr auto fun =
-    //                 [=](auto ... I) {
-    //                     return (path_predicate<*(tos + I), to, EnumType>(std::make_index_sequence<sizeof...(Is)>(), expanded, visited_sequence) || ...);
-    //                 };
-                    
-    //             return fun(std::make_index_sequence<cnt>());
-                    
-                    
-    //             }
-
-    //     }
-    //     return false;
-    // }
-
-    // template<typename NthTypeOf<0, NodeType...>::value_type from,
-    //          typename NthTypeOf<0, NodeType...>::value_type to>
-    // constexpr auto path_exists() const
-    // {    
-        
-    //     return path_predicate<from, to, typename NthTypeOf<0, NodeType...>::value_type>(std::make_index_sequence<m_nodes_cnt>());
-
-    // }
-	
 };
-
-
-template<typename NthTypeOf<0, NodeType...>::value_type from,
-         typename NthTypeOf<0, NodeType...>::value_type to,
-         typename NodeType
-         >
-constexpr auto path_exists(Graph<NodeType ...> g)
-{    
-
-
-    return false;
-    // return path_predicate<from, to, typename NthTypeOf<0, NodeType...>::value_type>(std::make_index_sequence<m_nodes_cnt>());
-
-}
-
 
 template<typename Graph, typename EnumType>
 constexpr auto get_successors(Graph &g, EnumType val)
 {
-	static_assert(is_graph_v<Graph> , "get_successors requires a Graph as it first argument");
-	return std::make_pair(g.count(val), g.followers(val));
+    static_assert(is_graph_v<Graph>, "get_successors requires a Graph as it first argument");
+    return std::make_pair(g.count(val), g.followers(val));
 }
 
 }  // namespace ctgraph
-
-
-// template<typename EnumType>
-// NodeIterator() -> NodeIteratory<EnumType, void>
