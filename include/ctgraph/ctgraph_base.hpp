@@ -245,28 +245,22 @@ constexpr void dfs_(EnumType from, Callable && call, Nodes nodes, cx::map<EnumTy
     }
 }
 
-// template<typename EnumType, typename Nodes, typename... NodeType,
-//          size_t... Is, std::size_t MapSize, typename Callable>
-// constexpr void bfs_(EnumType from, Callable && call, Nodes nodes, cx::map<EnumType, bool, MapSize> &visited, std::index_sequence<Is...>)
-// {
-//     std::array arr{ (std::tuple(std::get<Is>(nodes).m_name, std::get<Is>(nodes).m_cnt, std::get<Is>(nodes).m_tos.data()))... };
-//     for (const auto [node, cnt, tos] : arr)
-//     {
-//         if (node != from) { continue; }
-//         visited[node] = true;
 
-//         for (size_t i = 0; i < cnt; ++i) {
-//              if (visited[*(tos+i)]) { continue; }
-//              call(*(tos+i));
-//         }
-        
-//         for (size_t i = 0; i < cnt; ++i) {
-//             if (visited[*(tos+i)]) { continue; }
-//             visited[*(tos+i)] = true;
-//             bfs_(*(tos+i), call, nodes, visited, std::make_index_sequence<sizeof...(Is)>());
-//         }    
-//     }
-// }
+template<typename Nodes, size_t... Is>
+static constexpr auto sinks_(Nodes &&nodes, std::index_sequence<Is...>)
+{
+    return ((std::get<Is>(nodes).m_cnt == 0 ? 1 : 0) + ... );
+}
+
+template<typename Nodes, size_t... Is, typename EnumType, size_t SinksSize>
+static constexpr auto fill_sinks_(Nodes &&nodes,std::array<EnumType, SinksSize>& sinks_arr, std::index_sequence<Is...>)
+{
+
+    int i = 0;
+    ((std::get<Is>(nodes).m_cnt == 0 ? (sinks_arr[i++] = std::get<Is>(nodes).m_name) : static_cast<EnumType>(0)),  ...);
+    return 0;
+}
+
 
 }  // namespace detail
 
@@ -422,8 +416,27 @@ struct Graph
             }
         }
     }
-    
+
+    constexpr auto sinks_count() const
+    {
+        auto const sinks_cout = detail::sinks_(m_nodes, std::make_index_sequence<m_nodes_cnt>());
+        return sinks_cout;
+    }
+
+    template<typename... NodeTypee>
+    friend constexpr auto sinks(Graph<NodeTypee...> g);
 };
+
+
+template<typename... NodeType>
+constexpr auto sinks(Graph<NodeType...> g )
+{
+    auto const sinks_cout = g.sinks_count();
+    std::array<typename NthTypeOf<0, NodeType...>::value_type, sinks_cout> arr{};
+    detail::fill_sinks_(g.m_nodes, arr, std::make_index_sequence<g.m_nodes_cnt>());
+    return arr;
+}
+
 
 template<typename Graph, typename EnumType>
 constexpr auto get_successors(Graph &g, EnumType val)

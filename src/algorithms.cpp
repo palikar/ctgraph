@@ -46,20 +46,30 @@ int main(int, char**)
                                         Node{NodeTypes::NODE_8, NodeTypes::NODE_9, NodeTypes::NODE_10},
                                         Node{NodeTypes::NODE_9},
                                         Node{NodeTypes::NODE_10, NodeTypes::NODE_11},
-                                        Node{NodeTypes::NODE_11, NodeTypes::NODE_7}};
+                                        Node{NodeTypes::NODE_11}};
 
-    constexpr auto i = graph.path_exists(NodeTypes::NODE_1, NodeTypes::NODE_7);    
-    static_assert(i == 1, "");
+    // constexpr auto i = graph.path_exists(NodeTypes::NODE_1, NodeTypes::NODE_7);    
+    // static_assert(i == 1, "");
 
-    std::cout << "DFS:" << "\n";
-    graph.dfs(NodeTypes::NODE_1, [](auto node){
-        std::cout << "Node:" << node << "\n";
-    });
+    auto i = graph.sinks_count();
+    std::cout << i << "\n";
+    
+    auto s = sinks(graph);
+    for (auto& sink : s) {
+        std::cout << sink << "\n";
+    }
 
-    std::cout << "BFS:" << "\n";
-    graph.bfs(NodeTypes::NODE_1, [](auto node){
-        std::cout << "Node:" << node << "\n";
-    });
+    
+
+    // std::cout << "DFS:" << "\n";
+    // graph.dfs(NodeTypes::NODE_1, [](auto node){
+    //     std::cout << "Node:" << node << "\n";
+    // });
+
+    // std::cout << "BFS:" << "\n";
+    // graph.bfs(NodeTypes::NODE_1, [](auto node){
+    //     std::cout << "Node:" << node << "\n";
+    // });
     
     return 0;
 }
