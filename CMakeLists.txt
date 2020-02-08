@@ -19,7 +19,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 add_library(project_warnings INTERFACE)
 add_library(project_options INTERFACE)
 
-target_compile_features(project_options INTERFACE cxx_std_17)
+target_compile_features(project_options INTERFACE cxx_std_20)
 
 
 option(FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." TRUE)

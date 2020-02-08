@@ -243,13 +243,15 @@ constexpr void dfs_(EnumType from, Callable && call, Nodes nodes, cx::map<EnumTy
 }
 
 template<typename Nodes, size_t... Is>
-static constexpr auto sinks_(Nodes &&nodes, std::index_sequence<Is...>)
+static constexpr auto sources_(Nodes &&nodes, std::index_sequence<Is...>)
 {
     return ((std::get<Is>(nodes).m_cnt == 0 ? 1 : 0) + ... );
 }
 
+
+
 template<typename Nodes, size_t... Is, typename EnumType, size_t SinksSize>
-static constexpr auto fill_sinks_(Nodes &&nodes,std::array<EnumType, SinksSize>& sinks_arr, std::index_sequence<Is...>)
+static constexpr auto fill_sources_(Nodes &&nodes,std::array<EnumType, SinksSize>& sinks_arr, std::index_sequence<Is...>)
 {
 
     int i = 0;
