@@ -1,4 +1,3 @@
-
 # #+OPTIONS: ':t *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline author:t
 # #+OPTIONS: broken-links:nil c:nil creator:nil d:(not "LOGBOOK")
 # #+OPTIONS: date:t e:t email:nil f:t inline:t num:t p:nil pri:nil
@@ -60,7 +59,7 @@ The flags for the cmake command can be adjusted as needed.
 \\
 
 The build generates the file ~ctgraph.hpp~ in the build directory. This is a single header that can be included in other projects and provides all of the functionality of CTGraph.
- 
+
 *** Running tests
 CTGraph uses [[https://github.com/catchorg/Catch2][Catch2]] for its testing. If the cmake command was ran with ~-DBUILD_TESTS=1~, there will be an executable ~graph_tests~ in the build directory. Running it will result in the execution of all tests for the project. Alternatively one can also use ctest:
 #+BEGIN_SRC sh
@@ -106,7 +105,7 @@ From here on out, we can use the graph in all sorts of ways.
 
 Getting all of the vertices:
 #+BEGIN_SRC c++
-constexpr auto vertices = graph.vertices(); 
+constexpr auto vertices = graph.vertices();
 for(const auto& v: vertices ){
     std::cout << "Vertex: " << static_cast<int>(v) << "\n";
 }
@@ -145,8 +144,3 @@ You can find a compilable and commented example in the [[https://github.com/pali
 ** Acknowledgments
 + [[https://github.com/lefticus/cpp_box][Jason Turner]] and [[https://github.com/lefticus/cpp_box/blob/master/include/cpp_box/state_machine.hpp][=state_machine.hpp=]] for inspiration.
 + [[https://github.com/edlund/amalgamate][Amalgamate]] for generating a single-include header file.
-
-
-
-
-
