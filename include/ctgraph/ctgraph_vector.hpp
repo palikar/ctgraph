@@ -12,7 +12,7 @@ namespace ctgraph
 namespace cx
 {
 
-template <typename Value,  Value sentinel, std::size_t Size = 5>
+template <typename Value, std::size_t Size = 5>
 class vector
 {
     using storage_t = std::array<Value, Size>;

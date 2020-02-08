@@ -392,7 +392,6 @@ struct Graph
             std::make_index_sequence<m_nodes_cnt>());   
     }
 
-    
     template<typename EnumType, typename Callable>
     constexpr void dfs( EnumType val, Callable  &&call) const
     {
@@ -407,7 +406,7 @@ struct Graph
     constexpr void bfs( EnumType val, Callable  call) const
     {
         auto visited = detail::fill_visited_<EnumType, decltype(m_nodes), NodeType...>(m_nodes, std::make_index_sequence<m_nodes_cnt>());
-        cx::vector<EnumType, static_cast<EnumType>(0), m_nodes_cnt> vec{};
+        cx::vector<EnumType, m_nodes_cnt> vec{};
         vec.push_back(val);
         visited[val] = true;
         while (!vec.empty()) {

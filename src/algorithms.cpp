@@ -50,7 +50,6 @@ int main(int, char**)
 
     constexpr auto i = graph.path_exists(NodeTypes::NODE_1, NodeTypes::NODE_7);    
     static_assert(i == 1, "");
-    std::cout << i << "\n";
 
     std::cout << "DFS:" << "\n";
     graph.dfs(NodeTypes::NODE_1, [](auto node){
