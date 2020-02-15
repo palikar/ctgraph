@@ -190,6 +190,43 @@ struct Graph
     {
         return detail::sinks_(m_nodes, std::make_index_sequence<m_nodes_cnt>());
     }
+
+    template<size_t... Is>
+    constexpr auto _mother_vertex(std::index_sequence<Is...>) const
+    {
+        cx::map<typename NthTypeOf<0, NodeType...>::value_type, bool, m_nodes_cnt> visited{};
+        typename NthTypeOf<0, NodeType...>::value_type last{};
+        
+        const std::array arr{ (std::get<Is>(m_nodes).m_name) ... };
+        for (auto v : arr) { visited[v] = false; }
+
+        const auto visitor = [&visited](auto node){
+            visited[node] = true;
+        };
+
+        for (auto v : arr) {
+            if (!visited[v]) {
+                dfs<true>(v, visitor);
+                last = v;
+            }
+        }
+
+        for (auto v : arr) { visited[v] = false; }
+        dfs<true>(last, visitor);
+
+        for (auto v : arr) {
+            if (!visited[v]) {
+                return std::pair{last, false};
+            }
+        }
+        
+        return std::pair{last, true};
+    }
+    
+    constexpr auto mother_vertex() const
+    {
+        return _mother_vertex(std::make_index_sequence<m_nodes_cnt>());
+    }
     
     template<typename... NodeTypee>
     friend constexpr auto sinks(Graph<NodeTypee...> g);

@@ -13,7 +13,8 @@ enum class NodeTypes
     NODE_8  = 8,
     NODE_9  = 9,
     NODE_10 = 10,
-    NODE_11 = 11
+    NODE_11 = 11,
+    NODE_12 = 12
 };
 
 // convenience functions for printing the value of the Nodes enum
@@ -97,6 +98,9 @@ int main(int, char **)
         std::cout << "Node: " << t << "\n";
     }
 
+    constexpr auto mother = graph.mother_vertex();
+    static_assert(mother.first == NodeTypes::NODE_1, "");
+    std::cout << "Mother vertex" << mother.first << "\n";
 
     return 0;
 }

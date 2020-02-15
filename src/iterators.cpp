@@ -40,10 +40,13 @@ int main(int, char**)
                                         Node{NodeTypes::NODE_5},
                                         Node{NodeTypes::NODE_6}};
 
-    // for (auto n : graph)
-    // {
-    //     std::cout << n << "\n";
-    // }
+    static_assert(*std::begin(graph) == NodeTypes::NODE_1, "");
+    static_assert(*(++std::begin(graph)) == NodeTypes::NODE_2, "");
+
+    for (auto n : graph)
+    {
+        std::cout << n << "\n";
+    }
 
     return pr(*(graph.end()));
 }
