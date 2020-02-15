@@ -134,11 +134,11 @@ struct Graph
             std::make_index_sequence<m_nodes_cnt>());   
     }
 
-    template<typename EnumType, typename Callable>
+    template<bool call_after = false, typename EnumType, typename Callable>
     constexpr void dfs( EnumType val, Callable  &&call) const
     {
         auto visited = detail::fill_visited_<EnumType, decltype(m_nodes), NodeType...>(m_nodes, std::make_index_sequence<m_nodes_cnt>());
-        detail::dfs_<EnumType, decltype(m_nodes), NodeType...>(
+        detail::dfs_<EnumType, decltype(m_nodes), call_after, NodeType...>(
             val, std::forward<Callable>(call), m_nodes,
             visited,
             std::make_index_sequence<m_nodes_cnt>());
@@ -163,6 +163,22 @@ struct Graph
                 vec.push_back(*(fol+i));
             }
         }
+    }
+
+    template<typename EnumType>
+    constexpr auto topological_sort(EnumType t_vertex) const
+    {
+        std::array<EnumType, m_nodes_cnt> top_sort{};
+        size_t index = 0;
+
+        auto sorter_dfs = [&top_sort, &index](auto node) {
+            top_sort[index++] = node;
+        };
+        
+        dfs<true>(t_vertex, sorter_dfs);
+
+        return top_sort;
+        
     }
 
     constexpr auto sources_count() const

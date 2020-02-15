@@ -81,6 +81,17 @@ int main(int, char**)
     graph.bfs(NodeTypes::NODE_1, [](auto node){
         std::cout << "Node:" << node << "\n";
     });
+
+    constexpr auto top = graph.topological_sort(NodeTypes::NODE_1);
+
+    static_assert(top[0] == NodeTypes::NODE_9, "");
+    static_assert(top[1] == NodeTypes::NODE_11, "");
+    static_assert(top[2] == NodeTypes::NODE_10, "");
+    
+    for (auto t : top) {
+        std::cout << "Node: " << t << "\n";
+    }
+
     
     return 0;
 }

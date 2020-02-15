@@ -217,7 +217,7 @@ constexpr auto fill_visited_(Nodes nodes, std::index_sequence<Is...>)
     return visited;
 }
 
-template<typename EnumType, typename Nodes, typename... NodeType,
+template<typename EnumType, typename Nodes, bool call_after = false, typename... NodeType,
          size_t... Is, std::size_t MapSize, typename Callable>
 constexpr void dfs_(EnumType from, Callable && call, Nodes nodes, cx::map<EnumType, bool, MapSize> &visited, std::index_sequence<Is...>)
 {
@@ -228,14 +228,17 @@ constexpr void dfs_(EnumType from, Callable && call, Nodes nodes, cx::map<EnumTy
         if (node != from) { continue; }
         
         visited[node] = true;
-        call(node);
+
+        if constexpr (!call_after) { call(node); }
         
         for (size_t i = 0; i < cnt; ++i) {
             if (visited[*(tos+i)]) { continue; }
 
-            dfs_(*(tos+i), call, nodes, visited,
-                 std::make_index_sequence<sizeof...(Is)>());
+            dfs_<EnumType, decltype(nodes), call_after, NodeType...>(*(tos+i), call, nodes, visited,
+                                                                     std::make_index_sequence<sizeof...(Is)>());
         }
+
+        if constexpr (call_after) { call(node); }
         
         
         
